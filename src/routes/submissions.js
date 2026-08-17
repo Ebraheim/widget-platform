@@ -4,7 +4,6 @@ const rateLimit = require("express-rate-limit");
 const geoService = require("../services/geoService");
 const widgetsService = require("../services/widgetsService");
 const submissionsService = require("../services/submissionsService");
-const pool = require("../db");
 const notificationService = require("../services/notificationService");
 const authMiddleware = require("../middleware/auth");
 
@@ -86,12 +85,15 @@ router.post("/", submissionLimiter, async (req, res) => {
       });
     }
 
-    const fullWidget = await pool.query(
-      "SELECT tenant_id FROM widgets WHERE id = $1",
-      [result.data.widget_id]
-    );
+    const tenantId = await widgetsService.getWidgetTenantId(
+  result.data.widget_id
+);
 
-const tenantId = fullWidget.rows[0].tenant_id;
+if (!tenantId) {
+  return res.status(404).json({
+    error: "Widget not found",
+  });
+}
 
 const geo = await geoService.enrichIp(req.ip);
 

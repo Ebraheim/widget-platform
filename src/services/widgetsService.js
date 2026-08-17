@@ -50,6 +50,10 @@ async function getPublicWidgetConfig(widgetId) {
   return widgetsRepository.getPublicWidgetConfig(widgetId);
 }
 
+async function getWidgetTenantId(widgetId) {
+  return widgetsRepository.getWidgetTenantId(widgetId);
+}
+
 module.exports = {
   createWidget,
   getWidgetsByTenant,
@@ -57,4 +61,5 @@ module.exports = {
   updateWidget,
   deleteWidget,
   getPublicWidgetConfig,
+  getWidgetTenantId,
 };

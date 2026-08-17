@@ -125,6 +125,18 @@ async function getPublicWidgetConfig(widgetId) {
   return result.rows[0] || null;
 }
 
+async function getWidgetTenantId(widgetId) {
+  const query = `
+    SELECT tenant_id
+    FROM widgets
+    WHERE id = $1
+  `;
+
+  const result = await pool.query(query, [widgetId]);
+
+  return result.rows[0]?.tenant_id || null;
+}
+
 module.exports = {
   createWidget,
   getWidgetsByTenant,
@@ -132,4 +144,5 @@ module.exports = {
   updateWidget,
   deleteWidget,
   getPublicWidgetConfig,
+  getWidgetTenantId,
 };
