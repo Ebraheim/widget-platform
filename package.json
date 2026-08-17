@@ -1,0 +1,32 @@
+{
+  "name": "widget-platform",
+  "version": "1.0.0",
+  "description": "FlyRank Backend Internship Capstone — Embeddable Widget &amp; Lead-Capture Platform",
+  "main": "index.js",
+  "scripts": {
+  "start": "node src/server.js",
+  "dev": "nodemon src/server.js"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ebraheim/widget-platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Ebraheim/widget-platform/issues"
+  },
+  "homepage": "https://github.com/Ebraheim/widget-platform#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
