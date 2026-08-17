@@ -2,8 +2,10 @@ const express = require("express");
 const { randomUUID } = require("crypto");
 const { z } = require("zod");
 const widgetsService = require("../services/widgetsService");
+const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
+router.use(authMiddleware);
 
 const widgets = [];
 
@@ -17,7 +19,7 @@ const widgetSchema = z.object({
 // GET all widgets
 router.get("/", async (req, res) => {
   try {
-    const tenantId = req.headers["x-tenant-id"];
+    const tenantId = req.tenant.id;
 
     const widgets = await widgetsService.getWidgetsByTenant(tenantId);
 
@@ -34,7 +36,7 @@ router.get("/", async (req, res) => {
 // GET one widget
 router.get("/:id", async (req, res) => {
   try {
-    const tenantId = req.headers["x-tenant-id"];
+    const tenantId = req.tenant.id;
 
     const widget = await widgetsService.getWidgetById(
       tenantId,
@@ -100,7 +102,7 @@ router.put("/:id", async (req, res) => {
   }
 
   try {
-    const tenantId = req.headers["x-tenant-id"];
+    const tenantId = req.tenant.id;
 
     const widget = await widgetsService.updateWidget({
       tenantId,
@@ -130,7 +132,7 @@ router.put("/:id", async (req, res) => {
 // DELETE widget
 router.delete("/:id", async (req, res) => {
   try {
-    const tenantId = req.headers["x-tenant-id"];
+    const tenantId = req.tenant.id;
 
     const deletedWidget = await widgetsService.deleteWidget(
       tenantId,
