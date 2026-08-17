@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
 
   try {
     const widget = await widgetsService.createWidget({
-      tenantId: req.headers["x-tenant-id"],
+      tenantId: req.tenant.id,
       type: result.data.type,
       title: result.data.title,
       description: result.data.description,

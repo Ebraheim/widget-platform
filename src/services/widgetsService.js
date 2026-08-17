@@ -46,10 +46,15 @@ async function deleteWidget(tenantId, widgetId) {
   return widgetsRepository.deleteWidget(tenantId, widgetId);
 }
 
+async function getPublicWidgetConfig(widgetId) {
+  return widgetsRepository.getPublicWidgetConfig(widgetId);
+}
+
 module.exports = {
   createWidget,
   getWidgetsByTenant,
   getWidgetById,
   updateWidget,
   deleteWidget,
+  getPublicWidgetConfig,
 };

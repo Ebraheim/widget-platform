@@ -106,10 +106,30 @@ async function deleteWidget(tenantId, widgetId) {
   return result.rows[0] || null;
 }
 
+async function getPublicWidgetConfig(widgetId) {
+  const query = `
+    SELECT
+      id,
+      type,
+      title,
+      description,
+      button_text,
+      form_fields,
+      display_options
+    FROM widgets
+    WHERE id = $1
+  `;
+
+  const result = await pool.query(query, [widgetId]);
+
+  return result.rows[0] || null;
+}
+
 module.exports = {
   createWidget,
   getWidgetsByTenant,
   getWidgetById,
   updateWidget,
   deleteWidget,
+  getPublicWidgetConfig,
 };
