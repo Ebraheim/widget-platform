@@ -1,10 +1,11 @@
 const express = require("express");
 const { z } = require("zod");
 const rateLimit = require("express-rate-limit");
-
+const geoService = require("../services/geoService");
 const widgetsService = require("../services/widgetsService");
 const submissionsService = require("../services/submissionsService");
 const pool = require("../db");
+const notificationService = require("../services/notificationService");
 
 const router = express.Router();
 
@@ -57,14 +58,27 @@ router.post("/", submissionLimiter, async (req, res) => {
       [result.data.widget_id]
     );
 
-    const tenantId = fullWidget.rows[0].tenant_id;
+const tenantId = fullWidget.rows[0].tenant_id;
 
-    const submission = await submissionsService.createSubmission({
-      widgetId: result.data.widget_id,
-      tenantId,
-      payload: result.data.data,
-      ipAddress: req.ip,
-    });
+const geo = await geoService.enrichIp(req.ip);
+
+const submission = await submissionsService.createSubmission({
+  widgetId: result.data.widget_id,
+  tenantId,
+  payload: result.data.data,
+  ipAddress: req.ip,
+  country: geo.country,
+  city: geo.city,
+});
+
+try {
+  await notificationService.sendSubmissionNotification(submission);
+} catch (notificationError) {
+  console.error(
+    "Notification side effect failed:",
+    notificationError.message
+  );
+}
 
     return res.status(201).json({
       id: submission.id,
