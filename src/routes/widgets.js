@@ -1,6 +1,7 @@
 const express = require("express");
 const { randomUUID } = require("crypto");
 const { z } = require("zod");
+const widgetsService = require("../services/widgetsService");
 
 const router = express.Router();
 
@@ -14,25 +15,50 @@ const widgetSchema = z.object({
 });
 
 // GET all widgets
-router.get("/", (req, res) => {
-  return res.status(200).json(widgets);
+router.get("/", async (req, res) => {
+  try {
+    const tenantId = req.headers["x-tenant-id"];
+
+    const widgets = await widgetsService.getWidgetsByTenant(tenantId);
+
+    return res.status(200).json(widgets);
+  } catch (error) {
+    console.error("Failed to get widgets:", error);
+
+    return res.status(500).json({
+      error: "Failed to get widgets",
+    });
+  }
 });
 
 // GET one widget
-router.get("/:id", (req, res) => {
-  const widget = widgets.find((item) => item.id === req.params.id);
+router.get("/:id", async (req, res) => {
+  try {
+    const tenantId = req.headers["x-tenant-id"];
 
-  if (!widget) {
-    return res.status(404).json({
-      error: "Widget not found",
+    const widget = await widgetsService.getWidgetById(
+      tenantId,
+      req.params.id
+    );
+
+    if (!widget) {
+      return res.status(404).json({
+        error: "Widget not found",
+      });
+    }
+
+    return res.status(200).json(widget);
+  } catch (error) {
+    console.error("Failed to get widget:", error);
+
+    return res.status(500).json({
+      error: "Failed to get widget",
     });
   }
-
-  return res.status(200).json(widget);
 });
 
 // CREATE widget
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const result = widgetSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -42,29 +68,28 @@ router.post("/", (req, res) => {
     });
   }
 
-  const widget = {
-    id: randomUUID(),
-    ...result.data,
-    created_at: new Date().toISOString(),
-  };
+  try {
+    const widget = await widgetsService.createWidget({
+      tenantId: req.headers["x-tenant-id"],
+      type: result.data.type,
+      title: result.data.title,
+      description: result.data.description,
+      buttonText: result.data.button_text,
+    });
 
-  widgets.push(widget);
+    return res.status(201).json(widget);
+  } catch (error) {
+    console.error("Failed to create widget:", error);
 
-  return res.status(201).json(widget);
+    return res.status(500).json({
+      error: "Failed to create widget",
+    });
+  }
 });
 
+
 // UPDATE widget
-router.put("/:id", (req, res) => {
-  const widgetIndex = widgets.findIndex(
-    (item) => item.id === req.params.id
-  );
-
-  if (widgetIndex === -1) {
-    return res.status(404).json({
-      error: "Widget not found",
-    });
-  }
-
+router.put("/:id", async (req, res) => {
   const result = widgetSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -74,32 +99,58 @@ router.put("/:id", (req, res) => {
     });
   }
 
-  const updatedWidget = {
-    ...widgets[widgetIndex],
-    ...result.data,
-    updated_at: new Date().toISOString(),
-  };
+  try {
+    const tenantId = req.headers["x-tenant-id"];
 
-  widgets[widgetIndex] = updatedWidget;
+    const widget = await widgetsService.updateWidget({
+      tenantId,
+      widgetId: req.params.id,
+      type: result.data.type,
+      title: result.data.title,
+      description: result.data.description,
+      buttonText: result.data.button_text,
+    });
 
-  return res.status(200).json(updatedWidget);
+    if (!widget) {
+      return res.status(404).json({
+        error: "Widget not found",
+      });
+    }
+
+    return res.status(200).json(widget);
+  } catch (error) {
+    console.error("Failed to update widget:", error);
+
+    return res.status(500).json({
+      error: "Failed to update widget",
+    });
+  }
 });
 
 // DELETE widget
-router.delete("/:id", (req, res) => {
-  const widgetIndex = widgets.findIndex(
-    (item) => item.id === req.params.id
-  );
+router.delete("/:id", async (req, res) => {
+  try {
+    const tenantId = req.headers["x-tenant-id"];
 
-  if (widgetIndex === -1) {
-    return res.status(404).json({
-      error: "Widget not found",
+    const deletedWidget = await widgetsService.deleteWidget(
+      tenantId,
+      req.params.id
+    );
+
+    if (!deletedWidget) {
+      return res.status(404).json({
+        error: "Widget not found",
+      });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Failed to delete widget:", error);
+
+    return res.status(500).json({
+      error: "Failed to delete widget",
     });
   }
-
-  widgets.splice(widgetIndex, 1);
-
-  return res.status(204).send();
 });
 
 module.exports = router;

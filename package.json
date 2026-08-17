@@ -4,9 +4,9 @@
   "description": "FlyRank Backend Internship Capstone — Embeddable Widget &amp; Lead-Capture Platform",
   "main": "index.js",
   "scripts": {
-  "start": "node src/server.js",
-  "dev": "nodemon src/server.js"
-},
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ebraheim/widget-platform.git"
@@ -24,6 +24,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.2",
+    "pg": "^8.23.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
