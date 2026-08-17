@@ -6,6 +6,7 @@ const widgetsService = require("../services/widgetsService");
 const submissionsService = require("../services/submissionsService");
 const pool = require("../db");
 const notificationService = require("../services/notificationService");
+const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -23,6 +24,38 @@ const submissionSchema = z.object({
   widget_id: z.string().uuid(),
   data: z.record(z.string(), z.any()),
   website: z.string().optional().default(""),
+});
+
+// GET submission stats for authenticated tenant
+router.get("/stats", authMiddleware, async (req, res) => {
+  try {
+    const stats =
+      await submissionsService.getSubmissionStatsByTenant(req.tenant.id);
+
+    return res.status(200).json(stats);
+  } catch (error) {
+    console.error("Failed to get submission stats:", error);
+
+    return res.status(500).json({
+      error: "Failed to get submission stats",
+    });
+  }
+});
+
+// GET submissions for authenticated tenant
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const submissions =
+      await submissionsService.getSubmissionsByTenant(req.tenant.id);
+
+    return res.status(200).json(submissions);
+  } catch (error) {
+    console.error("Failed to get submissions:", error);
+
+    return res.status(500).json({
+      error: "Failed to get submissions",
+    });
+  }
 });
 
 router.post("/", submissionLimiter, async (req, res) => {

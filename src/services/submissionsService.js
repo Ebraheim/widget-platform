@@ -20,6 +20,16 @@ async function createSubmission({
   });
 }
 
+async function getSubmissionsByTenant(tenantId) {
+  return submissionsRepository.getSubmissionsByTenant(tenantId);
+}
+
+async function getSubmissionStatsByTenant(tenantId) {
+  return submissionsRepository.getSubmissionStatsByTenant(tenantId);
+}
+
 module.exports = {
   createSubmission,
+  getSubmissionsByTenant,
+  getSubmissionStatsByTenant,
 };
